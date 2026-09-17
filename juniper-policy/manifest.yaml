@@ -1,0 +1,110 @@
+manifestVersion: 1
+name: '@hmcrum/juniper-policy'
+version: 2026.09.17.1
+description: >
+  Deterministic queries over a Junos SRX security policy tree expressed as YAML.
+
+
+  Asking a language model "is this flow already permitted?" produces an
+  impression: sometimes right, never citable, different on the next run. The same
+  question is really set membership over five dimensions — from-zone, to-zone,
+  source, destination, application — plus CIDR and port containment. This model
+  answers it as a lookup that cites the file and line it came from.
+
+
+  Normalization is the real work, and it is what a parser buys you over an
+  impression: a /32 host route inside a /21 the address book names, a member
+  reached through two levels of address_set, a port inside a declared range, a
+  rule whose zone list is a superset of yours.
+
+
+  ## Methods
+
+
+  - **load_policies** — parse every policy YAML into one typed snapshot: rules,
+    address objects, address sets, applications and application sets, each
+    carrying its file and line. Also reports files no terraform role loads,
+    references that resolve to nothing, and names defined twice — none of which
+    are visible in the YAML itself.
+
+  - **find_duplicates** — given a proposed flow, return `exact`, `subsumed`,
+    `overlapping` or `none`. Deliberately not a boolean: "already covered by a
+    broader rule" and "partly allowed, and the remainder is the real request"
+    lead to different decisions.
+
+  - **zone_traversal** — resolve a flow's zone pairs and report which trust
+    boundaries it crosses, plus the rules that already exist for those pairs.
+    Emits a mermaid graph built from parsed data.
+
+  - **evaluate_checklist** — answer the mechanically-answerable review items with
+    verdicts and file:line evidence. Items needing judgment return
+    `requires_human` rather than a guess.
+
+
+  ## Design notes
+
+
+  No zone taxonomy or trust ordering is shipped as a default. Zone names are an
+  estate's own vocabulary, and a built-in ranking would be one site's topology
+  published as though it were a standard. Unranked zone pairs are reported as
+  `unranked` rather than as a reassuring zero, because a silent "no trust drop
+  detected" from a table containing neither zone is the failure this model exists
+  to prevent.
+
+
+  Likewise, names that resolve outside the YAML tree — Junos built-ins, dynamic
+  address feeds, anything a rendering layer injects per device — are reported
+  separately from genuinely broken references. A check that cries wolf dozens of
+  times is a check nobody reads.
+
+
+  Read-only throughout: it parses files and never writes to a device or a repo.
+
+
+  ## Quick Start
+
+
+  ```bash
+
+  swamp extension pull @hmcrum/juniper-policy
+
+  swamp model create @hmcrum/juniper-policy srx \
+    --global-arg policyDir=/path/to/terraform/security-policies \
+    --global-arg terraformMain=/path/to/terraform/main.tf
+  swamp model @hmcrum/juniper-policy method run load_policies srx
+
+  swamp model @hmcrum/juniper-policy method run find_duplicates srx \
+    --input 'fromZone=["trust"]' \
+    --input 'toZone=["dmz"]' \
+    --input 'sourceAddress=["192.0.2.0/24"]' \
+    --input 'destinationAddress=["any"]' \
+    --input 'application=["junos-https"]'
+  ```
+repository: 'https://github.com/hcrumpler/swamp-extensions'
+paths:
+  base: manifest
+models:
+  - juniper_policy.ts
+workflows: []
+vaults: []
+drivers: []
+datastores: []
+reports: []
+additionalFiles:
+  - README.md
+  - LICENSE.md
+platforms:
+  - linux-x86_64
+  - linux-aarch64
+  - darwin-x86_64
+  - darwin-aarch64
+labels:
+  - juniper
+  - junos
+  - srx
+  - firewall
+  - security
+  - network
+  - policy
+  - yaml
+dependencies: []
