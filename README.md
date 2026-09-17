@@ -8,6 +8,7 @@ Extensions for [swamp](https://github.com/swamp-club/swamp), published to
 | Extension | What it teaches swamp | Docs |
 |:--|:--|:--|
 | [`@hmcrum/juniper-policy`](juniper-policy/) | Deterministic queries over a Junos SRX security policy tree in YAML — duplicate detection, zone traversal, mechanical review checks, each citing file and line | [README](juniper-policy/README.md) |
+| [`@hmcrum/eol-lifecycle`](eol-lifecycle/) | Support/end-of-life lifecycle lookups against the public endoflife.date API — release date, EOL date, latest version, and a computed `supported` boolean, for any product | [README](eol-lifecycle/README.md) |
 
 ## Layout
 

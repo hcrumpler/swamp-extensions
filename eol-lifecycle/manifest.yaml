@@ -1,0 +1,80 @@
+manifestVersion: 1
+name: '@hmcrum/eol-lifecycle'
+version: 2026.09.17.1
+description: >
+  Support/end-of-life lifecycle lookups against the public endoflife.date API.
+
+
+  "Is this still supported?" has a real, citable answer sitting behind a free
+  public API — a release date, an end-of-life date, a latest patch version.
+  This model fetches it and hands back the API's own fields plus one computed
+  boolean, `supported`, so callers don't re-derive it from endoflife.date's own
+  three-state `eol` field (a date, or the literal `true`/`false`) at every call
+  site.
+
+
+  ## Method
+
+
+  - **lifecycle** — one fan-out call per product: every matching release cycle
+    (optionally narrowed to one `cycle`), each with `releaseDate`, the raw
+    `eolDate`, `latest`, and computed `supported`, plus a top-level `anyEol`
+    flag.
+
+
+  ## Design notes
+
+
+  No product is hardcoded — the product name is always supplied by the caller.
+  A product name endoflife.date doesn't recognize is the single most likely
+  input, not an exceptional one, so it degrades to `found: false` with a `note`
+  and catalog-derived `suggestions` rather than throwing.
+
+
+  Host-locked: every request goes through a guard that refuses any hostname
+  other than endoflife.date, checked before the request and again after
+  following any redirect.
+
+
+  Read-only throughout — this model only ever reads a public API.
+
+
+  ## Quick Start
+
+
+  ```bash
+
+  swamp extension pull @hmcrum/eol-lifecycle
+
+  swamp model create @hmcrum/eol-lifecycle eol
+
+  swamp model method run eol lifecycle --input product=python
+  swamp model method run eol lifecycle --input product=python --input cycle=3.11
+  ```
+repository: 'https://github.com/hcrumpler/swamp-extensions'
+paths:
+  base: manifest
+models:
+  - eol_lifecycle.ts
+workflows: []
+vaults: []
+drivers: []
+datastores: []
+reports: []
+additionalFiles:
+  - README.md
+  - LICENSE.md
+platforms:
+  - linux-x86_64
+  - linux-aarch64
+  - darwin-x86_64
+  - darwin-aarch64
+labels:
+  - eol
+  - lifecycle
+  - support
+  - endoflife
+  - compliance
+  - dependencies
+  - versions
+dependencies: []
