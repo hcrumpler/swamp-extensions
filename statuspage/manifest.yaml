@@ -1,0 +1,84 @@
+manifestVersion: 1
+name: "@hmcrum/statuspage"
+version: "2026.09.17.1"
+description: >
+  Manage an Atlassian Statuspage from swamp — component and incident model
+  types wrapping the Statuspage REST API v1.
+
+
+  A status page is a set of typed resources: components with a status, and
+  incidents with a lifecycle. This extension models both directly, so updating
+  a component to `major_outage` or opening and resolving an incident is a
+  method run against versioned state rather than an ad-hoc curl.
+
+
+  ## Model types
+
+
+  - **@hmcrum/statuspage-component** — the individual pieces of infrastructure
+    listed on your page. `create` / `update` / `delete` / `sync`. Status is one
+    of `operational`, `under_maintenance`, `degraded_performance`,
+    `partial_outage`, `major_outage`.
+
+  - **@hmcrum/statuspage-incident** — realtime incidents moving through
+    `investigating → identified → monitoring → resolved`. `create` / `update` /
+    `resolve` / `delete` / `sync`.
+
+
+  ## Design notes
+
+
+  Idempotent by construction: `create` verifies the resource still exists at
+  Statuspage before recreating, so a re-run after partial failure returns
+  existing state instead of a duplicate; `delete` treats a 404 as success.
+  `sync` refreshes stored state from the live API or writes a `not_found`
+  marker for drift detection.
+
+
+  The API key is a sensitive global argument (vaulted, never persisted in
+  plaintext). Statuspage rate-limits tokens to ~1 request/second; the client
+  retries on HTTP 420/429 with exponential backoff and honours `Retry-After`.
+
+
+  ## Quick Start
+
+
+  ```bash
+
+  swamp extension pull @hmcrum/statuspage
+
+  swamp model create @hmcrum/statuspage-component api-component
+  swamp model @hmcrum/statuspage-component method run create api-component
+  swamp model @hmcrum/statuspage-component method run update api-component
+
+  swamp model create @hmcrum/statuspage-incident db-outage
+  swamp model @hmcrum/statuspage-incident method run create  db-outage
+  swamp model @hmcrum/statuspage-incident method run resolve db-outage
+  ```
+repository: "https://github.com/hcrumpler/swamp-extensions"
+paths:
+  base: manifest
+models:
+  - statuspage_component.ts
+  - statuspage_incident.ts
+workflows: []
+vaults: []
+drivers: []
+datastores: []
+reports: []
+additionalFiles:
+  - README.md
+  - LICENSE.md
+platforms:
+  - linux-x86_64
+  - linux-aarch64
+  - darwin-x86_64
+  - darwin-aarch64
+labels:
+  - statuspage
+  - atlassian
+  - incidents
+  - status-page
+  - devops
+  - monitoring
+dependencies: []
