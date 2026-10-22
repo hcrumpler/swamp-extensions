@@ -1,0 +1,64 @@
+manifestVersion: 1
+name: '@hmcrum/nfl-player-stats'
+version: 2026.10.22.1
+license: Apache-2.0
+description: >
+  Real NFL player box-score statistics from ESPN's public, unauthenticated
+  summary endpoint. The missing middle layer between `@hmcrum/nfl-scores`
+  (games/standings/teams), `@hmcrum/nfl-injuries` (who's hurt), and
+  `@dougschaefer/sleeper` (fantasy rosters) — this model answers "how many
+  yards did my player actually get?"
+
+
+  Two read-only methods: `box_score` (one game by event id, fanned out to one
+  resource per team with every player's stat line grouped by category) and
+  `week_stats` (resolve a week's scoreboard to its completed games and fetch
+  each one's box score — one resource per game, so the caller never hunts
+  event ids by hand). ESPN's parallel keys/labels/stats arrays are zipped into
+  named {key,label,value} triples. Host-locked to site.api.espn.com, no auth or
+  secrets required.
+
+
+  ## Quick Start
+
+
+  ```bash
+
+  swamp extension pull @hmcrum/nfl-player-stats
+
+  swamp model create @hmcrum/nfl-player-stats nfl-stats
+
+
+  swamp model method run nfl-stats week_stats
+
+  swamp model method run nfl-stats week_stats --input week=5 --input seasonType=regular --input year=2025
+
+  swamp model method run nfl-stats box_score --input event=401772939
+  ```
+repository: 'https://github.com/hcrumpler/swamp-extensions'
+paths:
+  base: manifest
+models:
+  - nfl_player_stats.ts
+workflows: []
+vaults: []
+drivers: []
+datastores: []
+reports: []
+additionalFiles:
+  - README.md
+  - LICENSE.md
+platforms:
+  - linux-x86_64
+  - linux-aarch64
+  - darwin-x86_64
+  - darwin-aarch64
+labels:
+  - nfl
+  - sports
+  - football
+  - player-stats
+  - box-score
+  - fantasy-football
+  - public-data
+dependencies: []
