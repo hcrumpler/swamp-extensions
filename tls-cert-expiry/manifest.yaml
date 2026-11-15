@@ -1,0 +1,49 @@
+# Read-only; regenerate via 'swamp extension pull'
+manifestVersion: 1
+name: '@hmcrum/tls-cert-expiry'
+version: 2026.09.17.1
+description: >
+  Standalone TLS certificate expiry checker. Give it hostnames, get back
+  days-until-expiry — no external service dependency.
+
+  @lint/cert-health already has a TLS-probe method that does the same handshake,
+  but it lives behind globalArguments that require Nginx Proxy Manager
+  credentials even if you never touch NPM. This model has none of that: just the
+  probe, with its own configurable warn/critical thresholds.
+
+  One method, `check`. TLS-handshakes every listed host (via `openssl
+  s_client`/`openssl x509`), classifies each by days remaining, and writes one
+  resource per host plus a fleet-wide summary. A probe failure degrades that one
+  host to an `error` status instead of aborting the whole batch.
+
+  Requires `openssl` on the machine running swamp. No vault, no credentials, no
+  third-party account.
+
+  ## Quick Start
+
+  ```bash swamp extension pull @hmcrum/tls-cert-expiry swamp model create
+  @hmcrum/tls-cert-expiry certs \
+    --global-arg warnThresholdDays=30 --global-arg criticalThresholdDays=7
+  swamp model method run certs check \
+    --input hosts='["example.com","gateway.example.net:8443"]'
+  ```
+repository: 'https://github.com/hcrumpler/swamp-extensions'
+paths:
+  base: manifest
+models:
+  - tls_cert_expiry.ts
+workflows: []
+vaults: []
+drivers: []
+datastores: []
+reports: []
+additionalFiles:
+  - README.md
+  - LICENSE.md
+labels:
+  - tls
+  - ssl
+  - certificates
+  - monitoring
+  - security
+dependencies: []
